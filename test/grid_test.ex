@@ -25,4 +25,10 @@ defmodule GridTest do
     }
   end
 
+  test "it finds neighbours" do
+    second_cell = Grid.cells |> Enum.at(1)
+    third_cell = Grid.cells |> Enum.at(2)
+    assert Grid.neighbours(second_cell) |> Enum.count == 5
+    assert Grid.neighbours(third_cell) |> Enum.count == 3
+  end
 end
