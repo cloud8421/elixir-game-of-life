@@ -2,7 +2,8 @@ defmodule GridTest do
   use ExUnit.Case
   @cells [
     [1,0,1],
-    [1,1,1]
+    [0,1,0],
+    [1,1,0]
   ]
 
   setup do
@@ -20,15 +21,22 @@ defmodule GridTest do
     last_cell = Grid.cells |> List.last
     assert last_cell == %Cell{
       x: 2,
-      y: 1,
-      status: :alive
+      y: 2,
+      status: :dead
     }
   end
 
-  test "it finds neighbours" do
-    second_cell = Grid.cells |> Enum.at(1)
-    third_cell = Grid.cells |> Enum.at(2)
-    assert Grid.neighbours(second_cell) |> Enum.count == 5
-    assert Grid.neighbours(third_cell) |> Enum.count == 3
+  test "state transitions" do
+    Grid.tick
+
+    new_layout = [
+      :dead,  :alive, :dead,
+      :dead,  :dead,  :alive,
+      :alive, :alive, :dead
+    ]
+
+    cells_status = Grid.cells |> Enum.map(fn(x) -> x.status end)
+
+    assert new_layout == cells_status
   end
 end

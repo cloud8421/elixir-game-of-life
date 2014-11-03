@@ -1,17 +1,13 @@
 defmodule Grid do
   use GenServer
-
-  # Any live cell with fewer than two live neighbours dies, as if caused by under-population.
-  # Any live cell with two or three live neighbours lives on to the next generation.
-  # Any live cell with more than three live neighbours dies, as if by overcrowding.
-  # Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+  alias GridRules, as: GR
 
   def cells do
     GenServer.call(__MODULE__, :cells)
   end
 
-  def neighbours(cell) do
-    GenServer.call(__MODULE__, {:neighbours, cell})
+  def tick do
+    GenServer.cast(__MODULE__, :tick)
   end
 
   ## Callbacks
@@ -28,19 +24,19 @@ defmodule Grid do
     {:reply, grid, grid}
   end
 
-  def handle_call({:neighbours, cell}, _from, grid) do
-    neighbours = neighbours_for(cell, grid)
-    {:reply, neighbours, grid}
+  def handle_cast(:tick, grid) do
+    new_grid = Enum.map(grid, fn(cell) ->
+      neighbours = GR.neighbours(cell, grid)
+      transition(cell, neighbours)
+    end)
+    {:noreply, new_grid}
   end
 
   ## Private
 
-  defp neighbours_for(cell, grid) do
-    Enum.filter(grid, fn(potential) ->
-      Enum.member?(cell.x - 1..cell.x + 1, potential.x)
-      && Enum.member?(cell.y - 1..cell.y + 1, potential.y)
-      && cell != potential
-    end)
+  defp transition(cell, grid) do
+    updated_status = GR.new_status_for(cell, grid)
+    %Cell{cell | status: updated_status}
   end
 
   def parse_initial_values(values) do
