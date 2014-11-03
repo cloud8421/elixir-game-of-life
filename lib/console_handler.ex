@@ -2,7 +2,7 @@ defmodule ConsoleHandler do
   use GenEvent
 
   def handle_event({:update, grid}, []) do
-    Charm.reset
+    clear
     generate_grid(grid)
     {:ok, []}
   end
@@ -63,6 +63,13 @@ defmodule ConsoleHandler do
     IO.write " "
     IO.write "◼︎"
     IO.write " "
+  end
+
+  # taken from https://github.com/tomgco/elixir-charm/blob/master/lib/charm.ex#L102-L106
+  def clear do
+    IO.write IO.ANSI.format [ "\e[0m" ]
+    IO.write IO.ANSI.format [ "\e[2J" ]
+    IO.write IO.ANSI.format [ "\ec" ]
   end
 
 end

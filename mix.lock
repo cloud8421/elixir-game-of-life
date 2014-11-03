@@ -1,1 +1,0 @@
-%{"charm": {:git, "git://github.com/tomgco/elixir-charm.git", "6eb991cc36c8fc66ed19af84482d0e46572fcd7a", []}}
