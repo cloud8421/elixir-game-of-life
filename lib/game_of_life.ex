@@ -6,7 +6,17 @@ defmodule GameOfLife do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
+    initial_layout = [
+      [1,0,1,1,0,1],
+      [0,1,0,1,0,1],
+      [1,1,0,1,0,1],
+      [1,0,1,1,0,1],
+      [0,1,0,1,0,1],
+      [1,0,1,1,0,1]
+    ]
+
     children = [
+      worker(Grid, [initial_layout])
       # Define workers and child supervisors to be supervised
       # worker(GameOfLife.Worker, [arg1, arg2, arg3])
     ]
