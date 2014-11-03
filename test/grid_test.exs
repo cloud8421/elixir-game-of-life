@@ -1,24 +1,21 @@
 defmodule GridTest do
   use ExUnit.Case
+  alias Grid, as: G
   @cells [
     [1,0,1],
     [0,1,0],
     [1,1,0]
   ]
 
-  setup do
-    Grid.start_link(@cells)
-    :ok
-  end
-
-  test "it receives a nested list of cells" do
-    first_cell = Grid.cells |> List.first
+  test "it parses a cell pattern and returns a grid" do
+    grid = @cells |> G.parse_initial_values
+    first_cell = grid |> List.first
     assert first_cell == %Cell{
       x: 0,
       y: 0,
       status: :alive
     }
-    last_cell = Grid.cells |> List.last
+    last_cell = grid |> List.last
     assert last_cell == %Cell{
       x: 2,
       y: 2,
@@ -26,16 +23,17 @@ defmodule GridTest do
     }
   end
 
-  test "state transitions" do
-    Grid.tick
-
+  test "transition to a new generation" do
     new_layout = [
       :dead,  :alive, :dead,
       :dead,  :dead,  :alive,
       :alive, :alive, :dead
     ]
 
-    cells_status = Grid.cells |> Enum.map(fn(x) -> x.status end)
+    cells_status = @cells
+    |> G.parse_initial_values
+    |> G.transition_grid
+    |> Enum.map(fn(x) -> x.status end)
 
     assert new_layout == cells_status
   end

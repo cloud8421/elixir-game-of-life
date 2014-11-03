@@ -16,7 +16,7 @@ defmodule GameOfLife do
     ]
 
     children = [
-      worker(Grid, [initial_layout])
+      worker(GridWorker, [initial_layout])
       # Define workers and child supervisors to be supervised
       # worker(GameOfLife.Worker, [arg1, arg2, arg3])
     ]
