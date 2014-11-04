@@ -1,24 +1,16 @@
 defmodule ConsoleHandler do
   use GenEvent
 
-  def handle_event({:update, grid}, []) do
+  def handle_event({:update, cells}, dimensions = [width: width, height: height]) do
     clear
-    generate_grid(grid)
-    {:ok, []}
+    generate_grid(width, height, cells)
+    {:ok, dimensions}
   end
 
-  defp grid_to_dimensions(grid) do
-    grid
-      |> Enum.count
-      |> :math.sqrt
-      |> trunc
-  end
-
-  defp generate_grid(grid) do
-    size = grid_to_dimensions(grid)
-    print_header(size - 1)
-    grid
-      |> Enum.chunk(size)
+  defp generate_grid(width, height, cells) do
+    print_header(width - 1)
+    cells
+      |> Enum.chunk(height)
       |> Enum.map(fn(group) ->
            print_left_border
            Enum.map(group, fn(cell) ->
@@ -26,7 +18,7 @@ defmodule ConsoleHandler do
            end)
            print_right_border
          end)
-    print_footer(size - 1)
+    print_footer(width - 1)
   end
 
   defp print_header(size) do

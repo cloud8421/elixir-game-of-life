@@ -2,11 +2,11 @@ defmodule GridWorker do
   use GenServer
   alias Grid, as: G
 
-  @refresh_interval 1000
-
-  def cells do
-    GenServer.call(__MODULE__, :cells)
+  defmodule WorkerState do
+    defstruct cells: [], dispatcher: nil
   end
+
+  @refresh_interval 1000
 
   def tick do
     GenServer.cast(__MODULE__, :tick)
@@ -19,25 +19,38 @@ defmodule GridWorker do
   end
 
   def init(initial_values) do
-    {:ok, dispatcher} = GenEvent.start_link
-    GenEvent.add_handler(dispatcher, ConsoleHandler, [])
-    grid = initial_values |> G.parse_initial_values
-    GenEvent.notify(dispatcher, {:update, grid})
-    {:ok, {grid, dispatcher}, @refresh_interval}
+    state = build_initial_state(initial_values)
+    {width, height} = dimensions_for(initial_values)
+    GenEvent.add_handler(state.dispatcher,
+                         ConsoleHandler,
+                         [width: width, height: height])
+    GenEvent.notify(state.dispatcher, {:update, state.cells})
+    {:ok, state, @refresh_interval}
   end
 
-  def handle_call(:cells, _from, state = {grid, _dispatcher}) do
-    {:reply, grid, state}
-  end
-
-  def handle_cast(:tick, {grid, dispatcher}) do
+  def handle_cast(:tick, state = %WorkerState{cells: grid, dispatcher: dispatcher}) do
     new_grid = G.transition_grid(grid)
+    new_state = %WorkerState{state | cells: new_grid}
     GenEvent.notify(dispatcher, {:update, new_grid})
-    {:noreply, {new_grid, dispatcher}, @refresh_interval}
+    {:noreply, new_state, @refresh_interval}
   end
 
   def handle_info(:timeout, state) do
     tick
     {:noreply, state}
+  end
+
+  ## Private
+
+  defp dimensions_for(initial_values) do
+    width = initial_values |> Enum.count
+    height = initial_values |> List.first |> Enum.count
+    {width, height}
+  end
+
+  defp build_initial_state(initial_values) do
+    cells = initial_values |> G.parse_initial_values
+    {:ok, dispatcher} = GenEvent.start_link
+    %WorkerState{cells: cells, dispatcher: dispatcher}
   end
 end
