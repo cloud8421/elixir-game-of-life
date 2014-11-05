@@ -20,7 +20,7 @@ defmodule GridWorker do
 
   def init(initial_values) do
     state = build_initial_state(initial_values)
-    {width, height} = dimensions_for(initial_values)
+    {width, height} = G.dimensions_from_initial_values(initial_values)
     GenEvent.add_handler(state.dispatcher,
                          ConsoleHandler,
                          [width: width, height: height])
@@ -41,12 +41,6 @@ defmodule GridWorker do
   end
 
   ## Private
-
-  defp dimensions_for(initial_values) do
-    width = initial_values |> Enum.count
-    height = initial_values |> List.first |> Enum.count
-    {width, height}
-  end
 
   defp build_initial_state(initial_values) do
     cells = initial_values |> G.parse_initial_values

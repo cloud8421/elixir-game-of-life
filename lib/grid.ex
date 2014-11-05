@@ -16,24 +16,10 @@ defmodule Grid do
     end)
   end
 
-  def neighbours(cell, grid) do
-    Enum.filter(grid, fn(potential) ->
-      Enum.member?(cell.x - 1..cell.x + 1, potential.x)
-      && Enum.member?(cell.y - 1..cell.y + 1, potential.y)
-      && cell != potential
-    end)
-  end
-
-  def count_alive(cells) do
-    cells
-      |> Enum.filter(fn(n) -> n.status == :alive end)
-      |> Enum.count
-  end
-
-  def count_dead(cells) do
-    cells
-      |> Enum.filter(fn(n) -> n.status == :dead end)
-      |> Enum.count
+  def dimensions_from_initial_values(values) do
+    width = values |> Enum.count
+    height = values |> List.first |> Enum.count
+    {width, height}
   end
 
   def transition_grid(grid) do
@@ -43,18 +29,37 @@ defmodule Grid do
     end)
   end
 
-  def transition_cell(cell, neighbours) do
+  defp neighbours(cell, grid) do
+    Enum.filter(grid, fn(potential) ->
+      Enum.member?(cell.x - 1..cell.x + 1, potential.x)
+      && Enum.member?(cell.y - 1..cell.y + 1, potential.y)
+      && cell != potential
+    end)
+  end
+
+  defp count_alive(cells) do
+    cells
+      |> Enum.filter(fn(n) -> n.status == :alive end)
+      |> Enum.count
+  end
+
+  defp count_dead(cells) do
+    cells
+      |> Enum.filter(fn(n) -> n.status == :dead end)
+      |> Enum.count
+  end
+
+  defp transition_cell(cell, neighbours) do
     updated_status = new_status_for(cell, neighbours)
     %Cell{cell | status: updated_status}
   end
 
-  def new_status_for(cell, neighbours) do
+  defp new_status_for(cell, neighbours) do
     new_status_for(cell.status, count_alive(neighbours), count_dead(neighbours))
   end
 
   defp new_status_for(:dead, 3, _dead_count), do: :alive
   defp new_status_for(:alive, live_count, _dead_count) when live_count > 3, do: :dead
   defp new_status_for(:alive, live_count, _dead_count) when live_count < 2, do: :dead
-  defp new_status_for(:alive, _live_count, _dead_count), do: :alive
-  defp new_status_for(:dead, _live_count, _dead_count), do: :dead
+  defp new_status_for(status, _live_count, _dead_count), do: status
 end
