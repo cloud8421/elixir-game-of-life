@@ -38,14 +38,16 @@ defmodule Grid do
   end
 
   defp count_alive(cells) do
-    cells
-      |> Enum.filter(fn(n) -> n.status == :alive end)
-      |> Enum.count
+    count_by_status(cells, :alive)
   end
 
   defp count_dead(cells) do
+    count_by_status(cells, :dead)
+  end
+
+  defp count_by_status(cells, status) do
     cells
-      |> Enum.filter(fn(n) -> n.status == :dead end)
+      |> Enum.filter(fn(n) -> n.status == status end)
       |> Enum.count
   end
 

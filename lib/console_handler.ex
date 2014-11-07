@@ -8,7 +8,12 @@ defmodule ConsoleHandler do
   end
 
   defp generate_grid(width, height, cells) do
-    print_header(width - 1)
+    print_header(width)
+    print_cells(width, height, cells)
+    print_footer(width)
+  end
+
+  defp print_cells(width, height, cells) do
     cells
       |> Enum.chunk(height)
       |> Enum.map(fn(group) ->
@@ -18,22 +23,19 @@ defmodule ConsoleHandler do
            end)
            print_right_border
          end)
-    print_footer(width - 1)
   end
 
   defp print_header(size) do
     IO.write "⌈"
-    Enum.map(0..size, fn(_x) ->
-      IO.write "⎯⎯⎯"
-    end)
+    String.duplicate("---", size)
+    |> IO.write
     IO.puts "⌉"
   end
 
   defp print_footer(size) do
     IO.write "⌊"
-    Enum.map(0..size, fn(_x) ->
-      IO.write "⎯⎯⎯"
-    end)
+    String.duplicate("---", size)
+    |> IO.write
     IO.puts "⌋"
   end
 
@@ -46,15 +48,11 @@ defmodule ConsoleHandler do
   end
 
   defp print_cell(:dead) do
-    IO.write " "
-    IO.write "◻︎"
-    IO.write " "
+    IO.write " ◻︎ "
   end
 
   defp print_cell(:alive) do
-    IO.write " "
-    IO.write "◼︎"
-    IO.write " "
+    IO.write " ◼︎ "
   end
 
   # taken from https://github.com/tomgco/elixir-charm/blob/master/lib/charm.ex#L102-L106
