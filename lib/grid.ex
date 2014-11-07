@@ -30,11 +30,13 @@ defmodule Grid do
   end
 
   defp neighbours(cell, grid) do
-    Enum.filter(grid, fn(potential) ->
-      Enum.member?(cell.x - 1..cell.x + 1, potential.x)
-      && Enum.member?(cell.y - 1..cell.y + 1, potential.y)
-      && cell != potential
-    end)
+    for potential <- grid, is_neighbour?(cell, potential), do: potential
+  end
+
+  defp is_neighbour?(cell, candidate) do
+    Enum.member?(cell.x - 1..cell.x + 1, candidate.x)
+    && Enum.member?(cell.y - 1..cell.y + 1, candidate.y)
+    && cell != candidate
   end
 
   defp count_alive(cells) do
