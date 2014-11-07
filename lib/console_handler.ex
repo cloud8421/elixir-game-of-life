@@ -9,18 +9,16 @@ defmodule ConsoleHandler do
 
   defp generate_grid(width, height, cells) do
     print_header(width)
-    print_cells(width, height, cells)
+    print_cells(height, cells)
     print_footer(width)
   end
 
-  defp print_cells(width, height, cells) do
+  defp print_cells(height, cells) do
     cells
       |> Enum.chunk(height)
       |> Enum.map(fn(group) ->
            print_left_border
-           Enum.map(group, fn(cell) ->
-             print_cell(cell.status)
-           end)
+           for cell <- group, do: print_cell(cell.status)
            print_right_border
          end)
   end
